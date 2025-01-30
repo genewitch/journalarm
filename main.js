@@ -7,6 +7,8 @@ function showAlarms() {
     alarmList.innerHTML = '';
     
     // Create a single transaction to get all alarms
+	//PAY ATTENTION - THIS IS INCORRECT.
+	//the objectstore is part of the transaction not the db object.
     const store = db.objectStore('journalarm');
     const request = store.get([1,2,3,4,5]).onsuccess(function(event) {
         const results = event.target.result;
