@@ -1,74 +1,84 @@
+// Register background sync and notification handling
 self.addEventListener('install', event => {
     console.log('Service Worker installing.');
-    // Request permission for notifications
-    self.registration.pushManager.permissionState().then(state => {
-        if (state === 'denied') {
+    
+    // Request permission for notifications during installation
+    Notification.requestPermission().then(permission => {
+        if (permission === 'denied') {
             console.log('Notifications not allowed');
-        } else if (state === 'granted') {
+        } else {
             console.log('Notifications allowed');
         }
     });
+});
+
+// Handle messages from the main application
+self.addEventListener('message', event => {
+    const data = event.data;
     
-    event.waitUntil(
-        caches.open('cache-v1').then(cache => cache.addAll([
-            '/',
-            '/index.html',
-            '/styles.css'
-        ]))
-    );
-});
-
-// Add this message listener for permission request
-self.addEventListener('message', (event) => {
-    if (event.data.type === 'request-notifications') {
-        Notification.requestPermission().then(permission => {
-            self.postMessage({type: 'notification-permission', result: permission});
-        });
-    }
-});
-
-self.addEventListener('activate', event => {
-    console.log('Service Worker activating.');
-    // Clean up old caches
-    event.waitUntil(
-        caches.keys().then(keys => 
-            keys.filter(key => key !== 'cache-v1').forEach(oldKey => 
-                caches.delete(oldKey)
-            )
-        )
-    );
-});
-
-self.addEventListener('fetch', event => {
-    event.respondWith(
-        caches.match(event.request).then(response => {
-            return response || fetch(event.request);
-        })
-    );
-});
-
-// Add background sync
-let pendingAlarms = [];
-
-self.addEventListener('push', event => {
-    const options = {
-        body: 'Time to take your medication!',
-        icon: '/icon.png',
-        badge: '/badge.png'
-    };
-    
-    event.waitUntil(
-        self.registration.showNotification('Medication Reminder', options)
-    );
-});
-
-// Handle background sync
-self.addEventListener('sync', event => {
-    if (pendingAlarms.length > 0) {
+    if (data.type === 'add-alarm') {
+        // Store the alarm in indexedDB and set up monitoring
         const db = idb.openDatabase('journalarmDB');
-        pendingAlarms.forEach(alarm => {
-            // Process alarms here
-        });
-        pendingAlarms = [];
+        pendingAlarms.push(data.alarm);
+        
+        // Check immediately if this alarm should fire
+        if (isAlarmExpired(data.alarm.time)) {
+            self.registration.showNotification('Medication Reminder', {
+                body: 'You missed your medication!',
+                icon: '/icon.png',
+                badge: '/badge.png'
+            });
+        }
     }
 });
+
+// Function to check if an alarm has expired
+function isAlarmExpired(alarmTime) {
+    const currentTime = new Date();
+    return new Date(alarmTime).getTime() < currentTime.getTime();
+}
+
+// Handle push events for alarms
+self.addEventListener('push', event => {
+    const data = event.data.json();
+    
+    if (data.type === 'alarm-expired') {
+        self.registration.showNotification('Medication Reminder', {
+            body: 'You missed your medication!',
+            icon: '/icon.png',
+            badge: '/badge.png'
+        });
+    }
+});
+
+// Periodically check for expired alarms
+setInterval(() => {
+    const db = idb.openDatabase('journalarmDB');
+    
+    pendingAlarms = [];
+    
+    db.transaction('SELECT * FROM journalarm', function(tx, error) {
+        if (error) {
+            console.error('Error:', error);
+            return;
+        }
+        
+        tx.executeSql('SELECT * FROM journalarm', [], function(tx, results) {
+            for (let i = 0; i < results.rows.length; i++) {
+                const alarm = results.rows.item(i);
+                
+                if (alarm.active && isAlarmExpired(alarm.time)) {
+                    pendingAlarms.push(alarm);
+                    
+                    self.registration.showNotification('Medication Reminder', {
+                        body: 'You missed your medication!',
+                        icon: '/icon.png',
+                        badge: '/badge.png'
+                    });
+                }
+            }
+        }, function(error) {
+            console.error('Error:', error);
+        });
+    });
+}, 1000); // Check every second
