@@ -6,73 +6,25 @@ function showAlarms() {
     const alarmList = document.getElementById('alarm-list');
     alarmList.innerHTML = '';
     
-    // Get the object store and fetch all alarms
+    // Create a single transaction to get all alarms
     const store = db.objectStore('journalarm');
-    store.get(1).onsuccess(function(entryEvent) {
-        const entry = entryEvent.target.result;
+    const request = store.get([1,2,3,4,5]).onsuccess(function(event) {
+        const results = event.target.result;
         
-        const li = document.createElement('li');
-        li.className = 'alarm-item';
-        li.innerHTML = `
-            <strong>${new Date(entry.time).toLocaleTimeString()}</strong>
-            ${entry.description ? `<p>${entry.description}</p>` : ''}
-            <button onclick="deleteAlarm(${entry.id})">Delete</button>
-        `;
-        alarmList.appendChild(li);
+        results.forEach((entry, index) => {
+            const li = document.createElement('li');
+            li.className = 'alarm-item';
+            li.innerHTML = `
+                <strong>${new Date(entry.time).toLocaleTimeString()}</strong>
+                ${entry.description ? `<p>${entry.description}</p>` : ''}
+                <button onclick="deleteAlarm(${index + 1})">Delete</button>
+            `;
+            alarmList.appendChild(li);
+        });
+    }).onerror(function(error) {
+        console.error('Error loading alarms:', error);
     });
-    
-    store.get(2).onsuccess(function(entryEvent) {
-        const entry = entryEvent.target.result;
-        
-        const li = document.createElement('li');
-        li.className = 'alarm-item';
-        li.innerHTML = `
-            <strong>${new Date(entry.time).toLocaleTimeString()}</strong>
-            ${entry.description ? `<p>${entry.description}</p>` : ''}
-            <button onclick="deleteAlarm(${entry.id})">Delete</button>
-        `;
-        alarmList.appendChild(li);
-    });
-    
-    store.get(3).onsuccess(function(entryEvent) {
-        const entry = entryEvent.target.result;
-        
-        const li = document.createElement('li');
-        li.className = 'alarm-item';
-        li.innerHTML = `
-            <strong>${new Date(entry.time).toLocaleTimeString()}</strong>
-            ${entry.description ? `<p>${entry.description}</p>` : ''}
-            <button onclick="deleteAlarm(${entry.id})">Delete</button>
-        `;
-        alarmList.appendChild(li);
-    });
-    
-    store.get(4).onsuccess(function(entryEvent) {
-        const entry = entryEvent.target.result;
-        
-        const li = document.createElement('li');
-        li.className = 'alarm-item';
-        li.innerHTML = `
-            <strong>${new Date(entry.time).toLocaleTimeString()}</strong>
-            ${entry.description ? `<p>${entry.description}</p>` : ''}
-            <button onclick="deleteAlarm(${entry.id})">Delete</button>
-        `;
-        alarmList.appendChild(li);
-    });
-    
-    store.get(5).onsuccess(function(entryEvent) {
-        const entry = entryEvent.target.result;
-        
-        const li = document.createElement('li');
-        li.className = 'alarm-item';
-        li.innerHTML = `
-            <strong>${new Date(entry.time).toLocaleTimeString()}</strong>
-            ${entry.description ? `<p>${entry.description}</p>` : ''}
-            <button onclick="deleteAlarm(${entry.id})">Delete</button>
-        `;
-        alarmList.appendChild(li);
-    });
-    
+
     db.onerror = function(event) {
         console.error('Database error:', event.target.error);
     };
@@ -106,44 +58,44 @@ function saveJournalEntry() {
 
     const db = indexedDB.open('journalarmDB', 2);
     
-    return new Promise((resolve, reject) => {
-        const request = db.objectStore('journal').put({
-            text: text,
-            created_at: new Date().toISOString()
-        }).onsuccess(() => {
-            resolve(true);
-        });
-        
-        db.onerror = function(event) {
-            reject(event);
-        };
+    // Create a transaction for the journal store
+    const journalStore = db.objectStore('journal');
+    const journalRequest = journalStore.put({
+        text: text,
+        created_at: new Date().toISOString()
+    }).onsuccess(() => {
+        showJournal();
     });
+    
+    db.onerror = function(event) {
+        console.error('Error saving journal entry:', event.target.error);
+    };
 }
 
 function showJournal() {
     const db = indexedDB.open('journalarmDB', 2);
     
-    return new Promise((resolve, reject) => {
-        const request = db.objectStore('journal').get().onsuccess(function(results) {
-            const journalList = document.getElementById('journal-list');
-            journalList.innerHTML = '';
-            
-            results.forEach(entry => {
-                const li = document.createElement('li');
-                li.className = 'journal-entry';
-                li.innerHTML = `
-                    ${entry.created_at.toLocaleDateString()} - ${entry.text}
-                `;
-                journalList.appendChild(li);
-            });
-            
-            resolve(true);
-        });
+    // Create a transaction for the journal store
+    const journalStore = db.objectStore('journal');
+    const request = journalStore.get().onsuccess(function(results) {
+        const journalList = document.getElementById('journal-list');
+        journalList.innerHTML = '';
         
-        db.onerror = function(event) {
-            reject(event);
-        };
+        results.forEach(entry => {
+            const li = document.createElement('li');
+            li.className = 'journal-entry';
+            li.innerHTML = `
+                ${entry.created_at.toLocaleDateString()} - ${entry.text}
+            `;
+            journalList.appendChild(li);
+        });
+    }).onerror(function(error) {
+        console.error('Error loading journal entries:', error);
     });
+
+    db.onerror = function(event) {
+        console.error('Database error:', event.target.error);
+    };
 }
 
 // Load initial data
