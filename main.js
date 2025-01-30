@@ -6,7 +6,7 @@ class Alarms {
 
   addAlarm() {
     const date = new Date().toISOString();
-    const description = prompt('Enter alarm description:');
+    const description = prompt('which meds?');
     
     if (description) {
       this.alarms.push({
@@ -139,7 +139,12 @@ window.app = {
 function updateDateTime() {
   const now = new Date();
   document.getElementById('current-date-time').textContent = 
-    `${now.toLocaleString()} ${now.getHours():02d}:${now.getMinutes():02d}`;
+     `${now.toLocaleString('en-US', {
+      timeZone: 'UTC',
+       hour12: true,
+       hour: '2-digit',
+       minute: '2-digit'
+     })}`;
 }
 
 // Add event listeners
