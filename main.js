@@ -33,7 +33,9 @@ class Alarms {
   }
 
   removeAlarm(id) {
-    this.alarms = this.alarms.filter(alarm => alarm.id !== id);
+    // Filter out the specific alarm and save remaining active alarms
+    const filteredAlarms = this.alarms.filter(alarm => alarm.id !== id);
+    this.alarms = filteredAlarms;
     this.saveAlarms();
     return true;
   }
@@ -128,6 +130,7 @@ class JournalEntries {
       text: entry.text
     }));
 
+    // Add CSV headers
     const csvContent = [
       ['Date/Time,Action', ...alarms.map(alarm => `${alarm.date},${alarm.action}`)].join('\n'),
       ['Entry Date/Time,Text', ...journalEntries.map(entry => `${entry.date},${entry.text}`).join('\n')]
@@ -163,41 +166,23 @@ document.addEventListener('DOMContentLoaded', () => {
   updateDateTime();
   
   // Update these to match the actual button elements in HTML
-  const buttons = document.querySelectorAll('[data-function]');
-  buttons.forEach(button => {
-    const funcName = button.dataset.function;
-    switch(funcName) {
-      case 'addAlarm':
-        button.addEventListener('click', window.app.alarms.addAlarm);
-        break;
-      case 'showHelp':
-        button.addEventListener('click', () => {
-          document.getElementById('help-section').style.display = 'block';
-        });
-        break;
-      case 'showJournal':
-        button.addEventListener('click', () => {
-          document.getElementById('journal-section').style.display = 'block';
-        });
-        break;
-      case 'saveJournal':
-        button.addEventListener('click', window.app.journalEntries.saveJournal);
-        break;
-      case 'viewPrevious':
-        button.addEventListener('click', window.app.journalEntries.viewPrevious);
-        break;
-      case 'viewNext':
-        button.addEventListener('click', window.app.journalEntries.viewNext);
-        break;
-      case 'exportData':
-        button.addEventListener('click', window.app.journalEntries.exportData);
-        break;
-      case 'goHome':
-        button.addEventListener('click', () => {
-          document.getElementById('help-section').style.display = 'none';
-          document.getElementById('journal-section').style.display = 'none';
-        });
-        break;
-    }
+  document.getElementById('addAlarm').addEventListener('click', window.app.alarms.addAlarm);
+  document.getElementById('showHelp').addEventListener('click', showHelp());
+  document.getElementById('showJournal').addEventListener('click', showJournal());
+  document.getElementById('saveJournal').addEventListener('click', window.app.journalEntries.saveJournal);
+  document.getElementById('viewPrevious').addEventListener('click', window.app.journalEntries.viewPrevious);
+  document.getElementById('viewNext').addEventListener('click', window.app.journalEntries.viewNext);
+  document.getElementById('exportData').addEventListener('click', window.app.journalEntries.exportData);
+  document.getElementById('goHome').addEventListener('click', () => {
+    document.getElementById('help-section').style.display = 'none';
+    document.getElementById('journal-section').style.display = 'none';
   });
 });
+
+function showHelp() {
+  document.getElementById('help-section').style.display = 'block';
+}
+
+function showJournal() {
+  document.getElementById('journal-section').style.display = 'block';
+}
