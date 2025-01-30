@@ -1,6 +1,6 @@
 // Add this to the end of the file
 function showAlarms() {
-    const db = indexedDB.open('journalarmDB', 1);
+    const db = idb.open('journalarmDB');
     
     const alarmList = document.getElementById('alarm-list');
     alarmList.innerHTML = '';
