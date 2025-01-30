@@ -1,0 +1,32 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+.container {
+    max-width: 600px;
+    margin: auto;
+}
+.header {
+    text-align: center;
+}
+.alarm, .journal-entry, .buttons {
+    margin: 20px 0;
+}
+button {
+    display: block;
+    margin: 10px 0;
+}
+textarea {
+    width: 100%;
+    height: 100px;
+}
+.entry-nav {
+    display: flex;
+    justify-content: space-between;
+}
+#journal-section {
+    display: none;
+}
+#help-section {
+    display: none;
+}
