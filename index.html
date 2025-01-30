@@ -15,11 +15,11 @@
                 <div id="alarm-list">
                     <!-- Alarm list items go here -->
                 </div>
-                <button data-function="addAlarm()">Add Alarm</button>
+                <button onclick="addAlarm()">Add Alarm</button>
             </div>
             <div class="buttons">
-                <button data-function="showHelp()">Help</button>
-                <button data-function="showJournal()">Journal Entry</button>
+                <button onclick="showHelp()">Help</button>
+                <button onclick="showJournal()">Journal Entry</button>
             </div>
         </div>
         
@@ -27,21 +27,21 @@
             <div class="journal-header">
                 <h2>Journal Entry</h2>
                 <div id="current-date-time"></div>
-                <button data-function="goHome()">Go Home</button>
+                <button onclick="goHome()">Go Home</button>
             </div>
             <textarea id="journalText"></textarea>
-            <button data-function="saveJournal()">Save Entry</button>
+            <button onclick="saveJournal()">Save Entry</button>
             <div class="entry-nav">
-                <button data-function="viewPrevious()">Previous Entry</button>
-                <button id="next-entry-button" data-function="viewNext()">Next Entry</button>
+                <button onclick="viewPrevious()">Previous Entry</button>
+                <button id="next-entry-button" onclick="viewNext()">Next Entry</button>
             </div>
         </div>
 
         <div id="help-section">
             <h2>Help</h2>
             <p>This app helps you manage your medication schedule and journal your thoughts.</p>
-            <button data-function="exportData()">Export/Share</button>
-            <button data-function="goHome()">Go Home</button>
+            <button onclick="exportData()">Export/Share</button>
+            <button onclick="goHome()">Go Home</button>
         </div>
     </div>
     
