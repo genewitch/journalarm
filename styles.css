@@ -34,43 +34,108 @@ button {
     cursor: pointer
 }
 
-textarea {
+#current-date-time {
+    font-size: 1.2em;
+    margin: 10px 0;
+    text-align: center;
+}
+
+.textarea {
     width: 100%;
     height: 100px
-    margin: 10px 0
-    padding: 8px
-    border: 1px solid #ddd
-    border-radius: 4px
+    margin: 10px 0;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
 }
 
 .entry-nav {
     display: flex;
-    justify-content: space-between
+    justify-content: space-between;
+    margin-top: 10px;
 }
 
-#journal-section, #help-section {
-    display: none
+#next-entry-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#help-section, #journal-section {
+    display: none;
 }
 
 .notification-action {
-    background-color: #f8d7da
-    color: #721c24
-    padding: 10px
-    border-radius: 4px
-    margin-top: 5px
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 5px;
+    font-size: 0.9em;
 }
 
 .badge {
-    width: 30px
-    height: 30px
-    background-color: #e74c3c
-    border-radius: 50%
-    position: relative
-    top: -8px
-    right: -8px
+    width: 30px;
+    height: 30px;
+    background-color: #e74c3c;
+    border-radius: 50%;
+    position: relative;
+    top: -8px;
+    right: -8px;
 }
 
 .notification-icon {
-    width: 48px
-    height: 48px
+    width: 48px;
+    height: 48px;
+}
+
+/* Journal section styles */
+.journal-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.journal-text {
+    width: 100%;
+    min-height: 100px;
+    margin: 10px 0;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Button styles */
+.button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #0056b3;
+}
+
+.notification-action button {
+    padding: 8px 16px;
+    margin: 5px 0;
+    border-radius: 4px;
+}
+
+#next-entry-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#next-entry-button:hover {
+    background-color: #218838;
 }
