@@ -1,4 +1,5 @@
-// Add this to the end of the file
+// entire file content ...
+// ... goes in between
 function showAlarms() {
     const db = idb.open('journalarmDB');
     
