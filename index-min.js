@@ -23,6 +23,18 @@ class Database {
     async getAllJournalEntries() {
         return await this.journalStore.getAll();
     }
-}
 
+    createStore(storeName) {
+        return this.db.openStore({
+            name: storeName,
+            storeName: storeName,
+            index: (name, value) => {
+                if (name === 'time' || name === 'date') {
+                    return 1;
+                }
+                return -1;
+            }
+        });
+    }
+}
 window.db = new Database('journalarmDB', 1);
