@@ -166,16 +166,42 @@ document.addEventListener('DOMContentLoaded', () => {
   updateDateTime();
   
   // Update these to match the actual button elements in HTML
-  document.getElementById('addAlarm').addEventListener('click', window.app.alarms.addAlarm);
-  document.getElementById('showHelp').addEventListener('click', showHelp());
-  document.getElementById('showJournal').addEventListener('click', showJournal());
-  document.getElementById('saveJournal').addEventListener('click', window.app.journalEntries.saveJournal);
-  document.getElementById('viewPrevious').addEventListener('click', window.app.journalEntries.viewPrevious);
-  document.getElementById('viewNext').addEventListener('click', window.app.journalEntries.viewNext);
-  document.getElementById('exportData').addEventListener('click', window.app.journalEntries.exportData);
-  document.getElementById('goHome').addEventListener('click', () => {
-    document.getElementById('help-section').style.display = 'none';
-    document.getElementById('journal-section').style.display = 'none';
+  const buttons = document.querySelectorAll('.button');
+  buttons.forEach(button => {
+    const funcName = button.dataset.function;
+    switch(funcName) {
+      case 'addAlarm':
+        button.addEventListener('click', window.app.alarms.addAlarm);
+        break;
+      case 'showHelp':
+        button.addEventListener('click', () => {
+          document.getElementById('help-section').style.display = 'block';
+        });
+        break;
+      case 'showJournal':
+        button.addEventListener('click', () => {
+          document.getElementById('journal-section').style.display = 'block';
+        });
+        break;
+      case 'saveJournal':
+        button.addEventListener('click', window.app.journalEntries.saveJournal);
+        break;
+      case 'viewPrevious':
+        button.addEventListener('click', window.app.journalEntries.viewPrevious);
+        break;
+      case 'viewNext':
+        button.addEventListener('click', window.app.journalEntries.viewNext);
+        break;
+      case 'exportData':
+        button.addEventListener('click', window.app.journalEntries.exportData);
+        break;
+      case 'goHome':
+        button.addEventListener('click', () => {
+          document.getElementById('help-section').style.display = 'none';
+          document.getElementById('journal-section').style.display = 'none';
+        });
+        break;
+    }
   });
 });
 
