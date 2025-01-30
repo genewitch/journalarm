@@ -1,63 +1,99 @@
 // entire file content ...
 // ... goes in between
 function showAlarms() {
-    const request = indexedDB.open('journalarmDB', 2);
+    const db = indexedDB.open('journalarmDB', 2);
     
     const alarmList = document.getElementById('alarm-list');
     alarmList.innerHTML = '';
-    const db = IDBDatabase = request.result;
-    db.transaction((tx, error) => {
-        if (error) {
-            console.error('Error:', error);
-            return;
-        }
+    
+    // Create a new request for the data
+    const getRequest = db.request('object-store', 'journalarm').onsuccess(function(event) {
+        const store = event.target.result;
         
-        tx.executeSql(
-            'SELECT * FROM journalarm WHERE active = 1',
-            [],
-            (results) => {
-                for (let i = 0; i < results.rows.length; i++) {
-                    const alarm = results.rows.item(i);
-                    const li = document.createElement('li');
-                    li.className = 'alarm-item';
-                    li.innerHTML = `
-                        <strong>${new Date(alarm.time).toLocaleTimeString()}</strong>
-                        ${alarm.description ? `<p>${alarm.description}</p>` : ''}
-                        <button onclick="deleteAlarm(${alarm.id})">Delete</button>
-                    `;
-                    alarmList.appendChild(li);
-                }
-            },
-            (error) => {
-                console.error('Error:', error);
-            }
-        );
+        store.get(1).onsuccess(function(entryEvent) {
+            const entry = entryEvent.target.result;
+            
+            const li = document.createElement('li');
+            li.className = 'alarm-item';
+            li.innerHTML = `
+                <strong>${new Date(entry.time).toLocaleTimeString()}</strong>
+                ${entry.description ? `<p>${entry.description}</p>` : ''}
+                <button onclick="deleteAlarm(${entry.id})">Delete</button>
+            `;
+            alarmList.appendChild(li);
+        });
+        
+        store.get(2).onsuccess(function(entryEvent) {
+            const entry = entryEvent.target.result;
+            
+            const li = document.createElement('li');
+            li.className = 'alarm-item';
+            li.innerHTML = `
+                <strong>${new Date(entry.time).toLocaleTimeString()}</strong>
+                ${entry.description ? `<p>${entry.description}</p>` : ''}
+                <button onclick="deleteAlarm(${entry.id})">Delete</button>
+            `;
+            alarmList.appendChild(li);
+        });
+        
+        store.get(3).onsuccess(function(entryEvent) {
+            const entry = entryEvent.target.result;
+            
+            const li = document.createElement('li');
+            li.className = 'alarm-item';
+            li.innerHTML = `
+                <strong>${new Date(entry.time).toLocaleTimeString()}</strong>
+                ${entry.description ? `<p>${entry.description}</p>` : ''}
+                <button onclick="deleteAlarm(${entry.id})">Delete</button>
+            `;
+            alarmList.appendChild(li);
+        });
+        
+        store.get(4).onsuccess(function(entryEvent) {
+            const entry = entryEvent.target.result;
+            
+            const li = document.createElement('li');
+            li.className = 'alarm-item';
+            li.innerHTML = `
+                <strong>${new Date(entry.time).toLocaleTimeString()}</strong>
+                ${entry.description ? `<p>${entry.description}</p>` : ''}
+                <button onclick="deleteAlarm(${entry.id})">Delete</button>
+            `;
+            alarmList.appendChild(li);
+        });
+        
+        store.get(5).onsuccess(function(entryEvent) {
+            const entry = entryEvent.target.result;
+            
+            const li = document.createElement('li');
+            li.className = 'alarm-item';
+            li.innerHTML = `
+                <strong>${new Date(entry.time).toLocaleTimeString()}</strong>
+                ${entry.description ? `<p>${entry.description}</p>` : ''}
+                <button onclick="deleteAlarm(${entry.id})">Delete</button>
+            `;
+            alarmList.appendChild(li);
+        });
+    }).onerror(function(error) {
+        console.error('Error:', error);
     });
 }
 
 function deleteAlarm(id) {
     const db = indexedDB.open('journalarmDB', 2);
     
-    db.transaction((tx, error) => {
-        if (error) {
-            console.error('Error:', error);
-            return;
-        }
-        
-        tx.executeSql(
-            'DELETE FROM journalarm WHERE id = ?',
-            [id],
-            () => {
-                // Remove from UI
-                const li = document.querySelector(`.alarm-item:not(.deleted)`).parentElement;
-                if (li) {
-                    li.remove();
-                }
-            },
-            (error) => {
-                console.error('Error:', error);
-            }
-        );
+    return new Promise((resolve, reject) => {
+        const request = db.request('object-store', 'journalarm').get(id).onsuccess(function(entryEvent) {
+            entryEvent.target.result.delete().onsuccess(() => {
+                resolve(true);
+            });
+            
+            db.onerror = function(event) {
+                reject(event);
+            };
+        }).onerror(function(error) {
+            reject(error);
+        });
     });
 }
 
@@ -71,57 +107,43 @@ function saveJournalEntry() {
 
     const db = indexedDB.open('journalarmDB', 2);
     
-    db.transaction(async (tx, error) => {
-        if (error) {
-            console.error('Error:', error);
-            return;
-        }
+    return new Promise((resolve, reject) => {
+        const request = db.request('object-store', 'journal').put({
+            text: text,
+            created_at: new Date().toISOString()
+        }).onsuccess(() => {
+            resolve(true);
+        });
         
-        try {
-            const result = await tx.executeSql(
-                'INSERT INTO journal (text, created_at) VALUES (?, ?)',
-                [text, new Date().toISOString()]
-            );
-            
-            // Clear input
-            document.getElementById('journal-text').value = '';
-            showJournal();
-        } catch (error) {
-            console.error('Error:', error);
-        }
+        db.onerror = function(event) {
+            reject(event);
+        };
     });
 }
 
 function showJournal() {
     const db = indexedDB.open('journalarmDB', 2);
     
-    const journalList = document.getElementById('journal-list');
-    journalList.innerHTML = '';
-    
-    db.transaction((tx, error) => {
-        if (error) {
-            console.error('Error:', error);
-            return;
-        }
+    return new Promise((resolve, reject) => {
+        const request = db.request('object-store', 'journal').get().onsuccess(function(results) {
+            const journalList = document.getElementById('journal-list');
+            journalList.innerHTML = '';
+            
+            results.forEach(entry => {
+                const li = document.createElement('li');
+                li.className = 'journal-entry';
+                li.innerHTML = `
+                    ${entry.created_at.toLocaleDateString()} - ${entry.text}
+                `;
+                journalList.appendChild(li);
+            });
+            
+            resolve(true);
+        });
         
-        tx.executeSql(
-            'SELECT * FROM journal',
-            [],
-            (results) => {
-                for (let i = 0; i < results.rows.length; i++) {
-                    const entry = results.rows.item(i);
-                    const li = document.createElement('li');
-                    li.className = 'journal-entry';
-                    li.innerHTML = `
-                        ${entry.created_at.toLocaleDateString()} - ${entry.text}
-                    `;
-                    journalList.appendChild(li);
-                }
-            },
-            (error) => {
-                console.error('Error:', error);
-            }
-        );
+        db.onerror = function(event) {
+            reject(event);
+        };
     });
 }
 
