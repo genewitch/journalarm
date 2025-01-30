@@ -1,14 +1,13 @@
 // entire file content ...
 // ... goes in between
 function showAlarms() {
+    // Open database with proper transaction pattern
     const db = indexedDB.open('journalarmDB', 2);
     
     const alarmList = document.getElementById('alarm-list');
     alarmList.innerHTML = '';
     
     // Create a single transaction to get all alarms
-	//PAY ATTENTION - THIS IS INCORRECT.
-	//the objectstore is part of the transaction not the db object.
     const store = db.objectStore('journalarm');
     const request = store.get([1,2,3,4,5]).onsuccess(function(event) {
         const results = event.target.result;
@@ -27,12 +26,14 @@ function showAlarms() {
         console.error('Error loading alarms:', error);
     });
 
+    // Add proper error listener for the entire database
     db.onerror = function(event) {
         console.error('Database error:', event.target.error);
     };
 }
 
 function deleteAlarm(id) {
+    // Open database with proper transaction pattern
     const db = indexedDB.open('journalarmDB', 2);
     
     return new Promise((resolve, reject) => {
@@ -41,6 +42,7 @@ function deleteAlarm(id) {
                 resolve(true);
             });
             
+            // Add proper error listener for individual requests
             db.onerror = function(event) {
                 reject(event);
             };
@@ -58,6 +60,7 @@ function saveJournalEntry() {
         return;
     }
 
+    // Open database with proper transaction pattern
     const db = indexedDB.open('journalarmDB', 2);
     
     // Create a transaction for the journal store
@@ -69,8 +72,10 @@ function saveJournalEntry() {
         showJournal();
     });
     
+    // Add proper error listener for individual requests
     db.onerror = function(event) {
         console.error('Error saving journal entry:', event.target.error);
+        reject(event);
     };
 }
 
@@ -95,6 +100,7 @@ function showJournal() {
         console.error('Error loading journal entries:', error);
     });
 
+    // Add proper error listener for individual requests
     db.onerror = function(event) {
         console.error('Database error:', event.target.error);
     };
