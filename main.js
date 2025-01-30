@@ -1,12 +1,12 @@
 // entire file content ...
 // ... goes in between
 function showAlarms() {
-    const db = indexedDB.open('journalarmDB',2);
+    const db = indexedDB.open('journalarmDB', 2);
     
     const alarmList = document.getElementById('alarm-list');
     alarmList.innerHTML = '';
     
-    db.transaction(function(tx, error) {
+    db.transaction((tx, error) => {
         if (error) {
             console.error('Error:', error);
             return;
@@ -15,7 +15,7 @@ function showAlarms() {
         tx.executeSql(
             'SELECT * FROM journalarm WHERE active = 1',
             [],
-            function(tx, results) {
+            (results) => {
                 for (let i = 0; i < results.rows.length; i++) {
                     const alarm = results.rows.item(i);
                     const li = document.createElement('li');
@@ -28,7 +28,7 @@ function showAlarms() {
                     alarmList.appendChild(li);
                 }
             },
-            function(error) {
+            (error) => {
                 console.error('Error:', error);
             }
         );
@@ -36,9 +36,9 @@ function showAlarms() {
 }
 
 function deleteAlarm(id) {
-    const db = idb.open('journalarmDB');
+    const db = indexedDB.open('journalarmDB', 2);
     
-    db.transaction(function(tx, error) {
+    db.transaction((tx, error) => {
         if (error) {
             console.error('Error:', error);
             return;
@@ -47,14 +47,14 @@ function deleteAlarm(id) {
         tx.executeSql(
             'DELETE FROM journalarm WHERE id = ?',
             [id],
-            function(tx, results) {
+            () => {
                 // Remove from UI
                 const li = document.querySelector(`.alarm-item:not(.deleted)`).parentElement;
                 if (li) {
                     li.remove();
                 }
             },
-            function(error) {
+            (error) => {
                 console.error('Error:', error);
             }
         );
@@ -69,36 +69,36 @@ function saveJournalEntry() {
         return;
     }
 
-    const db = idb.open('journalarmDB');
+    const db = indexedDB.open('journalarmDB', 2);
     
-    db.transaction(function(tx, error) {
+    db.transaction(async (tx, error) => {
         if (error) {
             console.error('Error:', error);
             return;
         }
         
-        tx.executeSql(
-            'INSERT INTO journal (text, created_at) VALUES (?, ?)',
-            [text, new Date().toISOString()],
-            function(tx, results) {
-                // Clear input
-                document.getElementById('journal-text').value = '';
-                showJournal();
-            },
-            function(error) {
-                console.error('Error:', error);
-            }
-        );
+        try {
+            const result = await tx.executeSql(
+                'INSERT INTO journal (text, created_at) VALUES (?, ?)',
+                [text, new Date().toISOString()]
+            );
+            
+            // Clear input
+            document.getElementById('journal-text').value = '';
+            showJournal();
+        } catch (error) {
+            console.error('Error:', error);
+        }
     });
 }
 
 function showJournal() {
-    const db = idb.open('journalarmDB');
+    const db = indexedDB.open('journalarmDB', 2);
     
     const journalList = document.getElementById('journal-list');
     journalList.innerHTML = '';
     
-    db.transaction(function(tx, error) {
+    db.transaction((tx, error) => {
         if (error) {
             console.error('Error:', error);
             return;
@@ -107,7 +107,7 @@ function showJournal() {
         tx.executeSql(
             'SELECT * FROM journal',
             [],
-            function(tx, results) {
+            (results) => {
                 for (let i = 0; i < results.rows.length; i++) {
                     const entry = results.rows.item(i);
                     const li = document.createElement('li');
@@ -118,7 +118,7 @@ function showJournal() {
                     journalList.appendChild(li);
                 }
             },
-            function(error) {
+            (error) => {
                 console.error('Error:', error);
             }
         );
