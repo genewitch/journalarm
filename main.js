@@ -1,11 +1,11 @@
 // entire file content ...
 // ... goes in between
 function showAlarms() {
-    const db = indexedDB.open('journalarmDB', 2);
+    const request = indexedDB.open('journalarmDB', 2);
     
     const alarmList = document.getElementById('alarm-list');
     alarmList.innerHTML = '';
-    
+    const db = IDBDatabase = request.result;
     db.transaction((tx, error) => {
         if (error) {
             console.error('Error:', error);
