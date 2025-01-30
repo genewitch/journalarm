@@ -1,84 +1,58 @@
-// Register background sync and notification handling
+// service-worker.js
 self.addEventListener('install', event => {
     console.log('Service Worker installing.');
-    
-    // Request permission for notifications during installation
-    Notification.requestPermission().then(permission => {
-        if (permission === 'denied') {
-            console.log('Notifications not allowed');
-        } else {
-            console.log('Notifications allowed');
-        }
-    });
+    // Cache necessary assets
+    event.waitUntil(
+        caches.open('cache-v1').then(cache => cache.addAll([
+            '/',
+            '/index.html',
+            '/styles.css'
+        ]))
+    );
 });
 
-// Handle messages from the main application
-self.addEventListener('message', event => {
-    const data = event.data;
-    
-    if (data.type === 'add-alarm') {
-        // Store the alarm in indexedDB and set up monitoring
-        const db = idb.openDatabase('journalarmDB');
-        pendingAlarms.push(data.alarm);
-        
-        // Check immediately if this alarm should fire
-        if (isAlarmExpired(data.alarm.time)) {
-            self.registration.showNotification('Medication Reminder', {
-                body: 'You missed your medication!',
-                icon: '/icon.png',
-                badge: '/badge.png'
-            });
-        }
-    }
+self.addEventListener('activate', event => {
+    console.log('Service Worker activating.');
+    // Clean up old caches
+    event.waitUntil(
+        caches.keys().then(keys => 
+            keys.filter(key => key !== 'cache-v1').forEach(oldKey => 
+                caches.delete(oldKey)
+            )
+        )
+    );
 });
 
-// Function to check if an alarm has expired
-function isAlarmExpired(alarmTime) {
-    const currentTime = new Date();
-    return new Date(alarmTime).getTime() < currentTime.getTime();
-}
+self.addEventListener('fetch', event => {
+    event.respondWith(
+        caches.match(event.request).then(response => {
+            return response || fetch(event.request);
+        })
+    );
+});
 
-// Handle push events for alarms
+// Add background sync
+let pendingAlarms = [];
+
 self.addEventListener('push', event => {
-    const data = event.data.json();
+    const options = {
+        body: 'Time to take your medication!',
+        icon: '/icon.png',
+        badge: '/badge.png'
+    };
     
-    if (data.type === 'alarm-expired') {
-        self.registration.showNotification('Medication Reminder', {
-            body: 'You missed your medication!',
-            icon: '/icon.png',
-            badge: '/badge.png'
-        });
-    }
+    event.waitUntil(
+        self.registration.showNotification('Medication Reminder', options)
+    );
 });
 
-// Periodically check for expired alarms
-setInterval(() => {
-    const db = idb.openDatabase('journalarmDB');
-    
-    pendingAlarms = [];
-    
-    db.transaction('SELECT * FROM journalarm', function(tx, error) {
-        if (error) {
-            console.error('Error:', error);
-            return;
-        }
-        
-        tx.executeSql('SELECT * FROM journalarm', [], function(tx, results) {
-            for (let i = 0; i < results.rows.length; i++) {
-                const alarm = results.rows.item(i);
-                
-                if (alarm.active && isAlarmExpired(alarm.time)) {
-                    pendingAlarms.push(alarm);
-                    
-                    self.registration.showNotification('Medication Reminder', {
-                        body: 'You missed your medication!',
-                        icon: '/icon.png',
-                        badge: '/badge.png'
-                    });
-                }
-            }
-        }, function(error) {
-            console.error('Error:', error);
+// Handle background sync
+self.addEventListener('sync', event => {
+    if (pendingAlarms.length > 0) {
+        const db = idb.openDatabase('journalarmDB');
+        pendingAlarms.forEach(alarm => {
+            // Process alarms here
         });
-    });
-}, 1000); // Check every second
+        pendingAlarms = [];
+    }
+});
