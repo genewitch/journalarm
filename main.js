@@ -8,12 +8,10 @@ function showAlarms() {
     alarmList.innerHTML = '';
     
     // Create a single transaction to get all alarms
-    //explicitly this is incorrect
-	const store = db.objectStore('journalarm');
-    // the "store" needs to be wrapped in a transaction. 
-	
-	
-	const request = store.get([1,2,3,4,5]).onsuccess(function(event) {
+    const store = db.objectStore('journalarm');
+    const request = store.transaction().objectStore('alarms').index('time').get();
+    
+    request.onsuccess = function(event) {
         const results = event.target.result;
         
         results.forEach((entry, index) => {
@@ -26,18 +24,22 @@ function showAlarms() {
             `;
             alarmList.appendChild(li);
         });
-    }).onerror(function(error) {
-        console.error('Error loading alarms:', error);
-    });
+    };
+    
+    request.onerror = function(event) {
+        console.error('Error loading alarms:', event.target.error);
+        // Clear the list if error occurs
+        alarmList.innerHTML = '';
+    };
 
-    // Add proper error listener for the entire database
     db.onerror = function(event) {
         console.error('Database error:', event.target.error);
+        // Clear the list if database error occurs
+        alarmList.innerHTML = '';
     };
 }
 
 function deleteAlarm(id) {
-    // Open database with proper transaction pattern
     const db = indexedDB.open('journalarmDB', 2);
     
     return new Promise((resolve, reject) => {
@@ -64,7 +66,6 @@ function saveJournalEntry() {
         return;
     }
 
-    // Open database with proper transaction pattern
     const db = indexedDB.open('journalarmDB', 2);
     
     // Create a transaction for the journal store
