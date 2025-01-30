@@ -36,7 +36,7 @@ function showAlarms() {
 }
 
 function deleteAlarm(id) {
-    const db = idb.openDatabase('journalarmDB');
+    const db = idb.open('journalarmDB');
     
     db.transaction(function(tx, error) {
         if (error) {
@@ -69,7 +69,7 @@ function saveJournalEntry() {
         return;
     }
 
-    const db = idb.openDatabase('journalarmDB');
+    const db = idb.open('journalarmDB');
     
     db.transaction(function(tx, error) {
         if (error) {
@@ -93,7 +93,7 @@ function saveJournalEntry() {
 }
 
 function showJournal() {
-    const db = idb.openDatabase('journalarmDB');
+    const db = idb.open('journalarmDB');
     
     const journalList = document.getElementById('journal-list');
     journalList.innerHTML = '';
