@@ -8,8 +8,12 @@ function showAlarms() {
     alarmList.innerHTML = '';
     
     // Create a single transaction to get all alarms
-    const store = db.objectStore('journalarm');
-    const request = store.get([1,2,3,4,5]).onsuccess(function(event) {
+    //explicitly this is incorrect
+	const store = db.objectStore('journalarm');
+    // the "store" needs to be wrapped in a transaction. 
+	
+	
+	const request = store.get([1,2,3,4,5]).onsuccess(function(event) {
         const results = event.target.result;
         
         results.forEach((entry, index) => {
