@@ -114,7 +114,7 @@ class JournalEntries {
       const entryText = this.entries[nextEntryIndex].text;
       
       document.getElementById('journalText').value = entryText;
-      document.getElementById('next-entry-button').id = `next-entry-${nextEntryId + 1}`;
+      document.getElementById('next-entry-button').id = `next-entry-${currentEntryId + 1}`;
     }
   }
 
@@ -140,6 +140,15 @@ class JournalEntries {
     const url = window.URL.createObjectURL(blob);
     
     alert('Download exported data:', url);
+  }
+
+  showHelp() {
+    document.getElementById('help-section').style.display = 'block';
+  }
+
+  goHome() {
+    document.getElementById('help-section').style.display = 'none';
+    document.getElementById('journal-section').style.display = 'none';
   }
 }
 
@@ -169,46 +178,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const buttons = document.querySelectorAll('.button');
   buttons.forEach(button => {
     const funcName = button.dataset.function;
-    switch(funcName) {
-      case 'addAlarm':
-        button.addEventListener('click', window.app.alarms.addAlarm);
-        break;
-      case 'showHelp':
-        button.addEventListener('click', () => {
-          document.getElementById('help-section').style.display = 'block';
-        });
-        break;
-      case 'showJournal':
-        button.addEventListener('click', () => {
-          document.getElementById('journal-section').style.display = 'block';
-        });
-        break;
-      case 'saveJournal':
-        button.addEventListener('click', window.app.journalEntries.saveJournal);
-        break;
-      case 'viewPrevious':
-        button.addEventListener('click', window.app.journalEntries.viewPrevious);
-        break;
-      case 'viewNext':
-        button.addEventListener('click', window.app.journalEntries.viewNext);
-        break;
-      case 'exportData':
-        button.addEventListener('click', window.app.journalEntries.exportData);
-        break;
-      case 'goHome':
-        button.addEventListener('click', () => {
-          document.getElementById('help-section').style.display = 'none';
-          document.getElementById('journal-section').style.display = 'none';
-        });
-        break;
+    if (funcName === 'addAlarm') {
+      button.addEventListener('click', window.app.alarms.addAlarm);
+    } else if (funcName === 'showHelp') {
+      button.addEventListener('click', window.app.journalEntries.showHelp);
+    } else if (funcName === 'saveJournal') {
+      button.addEventListener('click', window.app.journalEntries.saveJournal);
+    } else if (funcName === 'viewPrevious') {
+      button.addEventListener('click', window.app.journalEntries.viewPrevious);
+    } else if (funcName === 'viewNext') {
+      button.addEventListener('click', window.app.journalEntries.viewNext);
+    } else if (funcName === 'exportData') {
+      button.addEventListener('click', window.app.journalEntries.exportData);
+    } else if (funcName === 'goHome') {
+      button.addEventListener('click', window.app.journalEntries.goHome);
     }
   });
 });
-
-function showHelp() {
-  document.getElementById('help-section').style.display = 'block';
-}
-
-function showJournal() {
-  document.getElementById('journal-section').style.display = 'block';
-}
