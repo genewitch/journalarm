@@ -1,0 +1,8 @@
+{
+    "short_name": "Journal App",
+    "display_name": "Journal and Alarms",
+    "description": "A journal application with alarm functionality.",
+    "start_url": "/index.html",
+    "background_color": "#f8f9fa",
+    "theme_color": "#007bff"
+}

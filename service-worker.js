@@ -11,85 +11,36 @@ self.addEventListener('install', event => {
     );
 });
 
-self.addEventListener('activate', event => {
-    console.log('Service Worker activating.');
-    // Clean up old caches
-    event.waitUntil(
-        caches.keys().then(keys => 
-            keys.filter(key => key !== 'cache-v1').forEach(oldKey => 
-                caches.delete(oldKey)
-            )
-        )
-    );
-});
-
 self.addEventListener('fetch', event => {
-    event.respondWith(
-        caches.match(event.request).then(response => {
-            return response || fetch(event.request);
-        })
-    );
-});
-
-// Add background sync
-let pendingAlarms = [];
-
-self.addEventListener('push', event => {
-    const options = {
-        body: 'Time to take your medication!',
-        icon: '/icon.png',
-        badge: '/badge.png'
-    };
+    event.preventDefault();
+    const url = event.request.url;
+    console.log(`Fetch event for ${url}`);
     
-    event.waitUntil(
-        self.registration.showNotification('Medication Reminder', options)
-    );
-});
-
-// Handle background sync
-self.addEventListener('sync', event => {
-    if (pendingAlarms.length > 0) {
-        const db = idb.openDatabase('journalarmDB');
-        pendingAlarms.forEach(alarm => {
-            // Process alarms here
-            // You would typically create entries in your database here
+    try {
+        const response = fetch(url);
+        return response.then(response => {
+            if (!response.headers.get('Content-Type')) {
+                throw new Error('Resource not found');
+            }
+            return response;
         });
-        pendingAlarms = [];
+    } catch (error) {
+        console.error('Error fetching resource:', error);
+        return new Response('', { status: 404, headers: {'Content-Type': 'text/plain'}});
     }
 });
 
-// Add CSV export functionality
 self.addEventListener('message', event => {
-    if (event.data === 'export-alarms') {
-        collectData('alarm').then(data => {
-            const csvContent = "time,description,action\n" + 
-                            data.map(item => `${item.time},${item.description},delete`).join('\n');
-            saveAs(csvContent, 'alarms.csv');
-        });
-    } else if (event.data === 'export-journal') {
-        collectData('journal').then(data => {
-            const csvContent = "date,entry\n" + 
-                            data.map(item => `${item.created_at},${item.text}`).join('\n');
-            saveAs(csvContent, 'journal.csv');
-        });
-    }
+    self.registration.updateWithManifest(event.data);
 });
 
-function collectData(type) {
-    return fetch(`/${type}.js`).then(response => response.json());
-}
-
-function saveAs(text, filename) {
-    return fetch('/save-csv', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'text/csv'
-        },
-        body: text
-    }).then(response => {
-        if (response.ok) {
-            return true;
-        }
-        throw new Error('Failed to save CSV file');
-    });
+// Add manifest registration
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+        .then(registration => {
+            console.log('Service Worker registered:', registration);
+        })
+        .catch(err => {
+            console.log('Service Worker registration failed:', err);
+        });
 }
