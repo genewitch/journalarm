@@ -22,9 +22,20 @@ class Alarms {
     }
   }
 
+  toggleAlarm(id) {
+    const alarm = this.alarms.find(alarm => alarm.id === id);
+    if (alarm) {
+      alarm.active = !alarm.active;
+      this.saveAlarms();
+      return alarm.active;
+    }
+    return false;
+  }
+
   removeAlarm(id) {
     this.alarms = this.alarms.filter(alarm => alarm.id !== id);
     this.saveAlarms();
+    return true;
   }
 
   viewAlarms() {
@@ -48,7 +59,7 @@ class Alarms {
         const store = db.getStore('entries');
         store.put({
           type: 'alarm',
-          data: this.alarms
+          data: this.alarms.filter(alarm => alarm.active)
         });
       });
       return tx完成().then(() => true);
@@ -152,16 +163,41 @@ document.addEventListener('DOMContentLoaded', () => {
   updateDateTime();
   
   // Update these to match the actual button elements in HTML
-  const buttons = document.querySelectorAll('.button');
-      buttons[0].addEventListener('click', window.app.alarms.addAlarm);
-      buttons[1].addEventListener('click', (e) => {
-        const id = parseInt(e.target.closest('.alarm-item').querySelector('.alarm-time').textContent);
-        window.app.alarms.removeAlarm(id);
-      });
-      buttons[2].addEventListener('click', () => {
-        const text = document.getElementById('journalText').value;
-        window.app.journalEntries.saveJournal(text);
-      });
-      buttons[3].addEventListener('click', window.app.journalEntries.viewPrevious);
-      buttons[4].addEventListener('click', window.app.journalEntries.viewNext);
+  const buttons = document.querySelectorAll('[data-function]');
+  buttons.forEach(button => {
+    const funcName = button.dataset.function;
+    switch(funcName) {
+      case 'addAlarm':
+        button.addEventListener('click', window.app.alarms.addAlarm);
+        break;
+      case 'showHelp':
+        button.addEventListener('click', () => {
+          document.getElementById('help-section').style.display = 'block';
+        });
+        break;
+      case 'showJournal':
+        button.addEventListener('click', () => {
+          document.getElementById('journal-section').style.display = 'block';
+        });
+        break;
+      case 'saveJournal':
+        button.addEventListener('click', window.app.journalEntries.saveJournal);
+        break;
+      case 'viewPrevious':
+        button.addEventListener('click', window.app.journalEntries.viewPrevious);
+        break;
+      case 'viewNext':
+        button.addEventListener('click', window.app.journalEntries.viewNext);
+        break;
+      case 'exportData':
+        button.addEventListener('click', window.app.journalEntries.exportData);
+        break;
+      case 'goHome':
+        button.addEventListener('click', () => {
+          document.getElementById('help-section').style.display = 'none';
+          document.getElementById('journal-section').style.display = 'none';
+        });
+        break;
+    }
+  });
 });
