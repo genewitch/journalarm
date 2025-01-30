@@ -64,7 +64,7 @@ class Alarms {
           data: this.alarms.filter(alarm => alarm.active)
         });
       });
-      return tx完成().then(() => true);
+      return tx.complete().then(() => true);
     });
   }
 }
@@ -90,7 +90,7 @@ class JournalEntries {
           data: this.entries.concat(entry)
         });
       });
-      return tx完成().then(() => true);
+      return tx.complete().then(() => true);
     });
   }
 
