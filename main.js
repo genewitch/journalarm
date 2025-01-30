@@ -151,17 +151,17 @@ function updateDateTime() {
 document.addEventListener('DOMContentLoaded', () => {
   updateDateTime();
   
-  document.getElementById('add-alarm-button').addEventListener('click', window.app.alarms.addAlarm);
-  document.getElementById('remove-alarm-button').addEventListener('click', (e) => {
-    const id = parseInt(e.target.closest('.alarm-item').querySelector('.alarm-time').textContent);
-    window.app.alarms.removeAlarm(id);
-  });
-  
-  document.getElementById('save-journal-button').addEventListener('click', () => {
-    const text = document.getElementById('journalText').value;
-    window.app.journalEntries.saveJournal(text);
-  });
-
-  document.getElementById('view-previous-entry-button').addEventListener('click', window.app.journalEntries.viewPrevious);
-  document.getElementById('view-next-entry-button').addEventListener('click', window.app.journalEntries.viewNext);
+  // Update these to match the actual button elements in HTML
+  const buttons = document.querySelectorAll('.button');
+      buttons[0].addEventListener('click', window.app.alarms.addAlarm);
+      buttons[1].addEventListener('click', (e) => {
+        const id = parseInt(e.target.closest('.alarm-item').querySelector('.alarm-time').textContent);
+        window.app.alarms.removeAlarm(id);
+      });
+      buttons[2].addEventListener('click', () => {
+        const text = document.getElementById('journalText').value;
+        window.app.journalEntries.saveJournal(text);
+      });
+      buttons[3].addEventListener('click', window.app.journalEntries.viewPrevious);
+      buttons[4].addEventListener('click', window.app.journalEntries.viewNext);
 });
