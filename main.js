@@ -1,7 +1,7 @@
 // entire file content ...
 // ... goes in between
 function showAlarms() {
-    const db = idb.open('journalarmDB');
+    const db = indexedDB.open('journalarmDB',2);
     
     const alarmList = document.getElementById('alarm-list');
     alarmList.innerHTML = '';
